@@ -1,12 +1,11 @@
 -- @name getAll
--- @type insert
--- @result one
+-- @type query
+-- @result many
 select *
 from some_table;
 
--- @name getAll
--- @type insert
+-- @name secondQuery
+-- @type returning_execut
 -- @result one
--- @javadoc return all rows
 select *
 from some_table;

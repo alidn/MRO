@@ -1,5 +1,7 @@
 package querybuilder;
 
+import java.util.ArrayList;
+
 public class Metadata {
     private String name;
     private QueryType queryType;
@@ -11,10 +13,7 @@ public class Metadata {
         this.resultType = resultType;
     }
 
-    public static Metadata fromTokens(Token[] comments) {
-        String name = null;
-        QueryType queryType = null;
-        ResultType resultType = null;
+    public Metadata(ArrayList<Token> comments) {
         for (Token comment : comments) {
             switch (comment.getType()) {
                 case NAME:
@@ -37,7 +36,6 @@ public class Metadata {
         if (resultType == null) {
             throw new IllegalArgumentException("there should be a comment stating the result type of the query");
         }
-        return new Metadata(name, queryType, resultType);
     }
 
     public enum QueryType {
@@ -68,5 +66,14 @@ public class Metadata {
                 default -> throw new IllegalArgumentException("Result type no valid");
             };
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Metadata{" +
+                "name='" + name + '\'' +
+                ", queryType=" + queryType +
+                ", resultType=" + resultType +
+                '}';
     }
 }
