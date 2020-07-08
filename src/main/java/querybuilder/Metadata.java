@@ -1,5 +1,7 @@
 package querybuilder;
 
+import java.rmi.activation.ActivationInstantiator;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 public class Metadata {
@@ -13,7 +15,7 @@ public class Metadata {
         this.resultType = resultType;
     }
 
-    public Metadata(ArrayList<Token> comments) {
+    public Metadata(ArrayList<Token> comments) throws ParseException {
         for (Token comment : comments) {
             switch (comment.getType()) {
                 case NAME:
@@ -23,31 +25,29 @@ public class Metadata {
                     try {
                         queryType = QueryType.fromString(comment.getValue());
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("invalid token at line: " +
-                                comment.getLineNumber() + " " + e.getMessage());
+                        throw new ParseException(e.getMessage(), comment.getLineNumber());
                     }
                     break;
                 case RESULT_TYPE:
                     try {
                         resultType = ResultType.fromString(comment.getValue());
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException("invalid token at line: " +
-                                comment.getLineNumber() + " " + e.getMessage());
+                        throw new ParseException(e.getMessage(), comment.getLineNumber());
                     }
                 default:
             }
         }
         if (name == null) {
-            throw new IllegalArgumentException("there should be a comment stating the name of the query at line: "
-                    + comments.get(0).getLineNumber());
+            throw new ParseException("there should be a comment stating the name of the query",
+                    comments.get(0).getLineNumber());
         }
         if (queryType == null) {
-            throw new IllegalArgumentException("there should be a comment stating the type of the query at line: "
-                    + comments.get(0).getLineNumber());
+            throw new ParseException("there should be a comment stating the type of the query",
+                    comments.get(0).getLineNumber());
         }
         if (resultType == null) {
-            throw new IllegalArgumentException("there should be a comment stating the result type of the query at line: "
-                    + comments.get(0).getLineNumber());
+            throw new ParseException("there should be a comment stating the result type of the query",
+                    comments.get(0).getLineNumber());
         }
     }
 
@@ -61,7 +61,7 @@ public class Metadata {
                 case "query" -> QUERY_TYPE;
                 case "returning_execute" -> RETURNING_EXECUTE;
                 case "insert" -> INSERT;
-                default -> throw new IllegalArgumentException("querybuilder.Query type not valid");
+                default -> throw new IllegalArgumentException("Query type not valid");
             };
         }
     }

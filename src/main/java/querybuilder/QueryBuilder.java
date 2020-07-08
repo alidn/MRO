@@ -3,6 +3,8 @@ package querybuilder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.ParseException;
+import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -19,20 +21,20 @@ public class QueryBuilder {
         String content = readInput();
         String[] queries = content.split("\n");
         ArrayList<Token> tokens = new ArrayList<>();
-        for (var s : queries) {
-            var token = Token.fromLine(s);
+        for (int i = 0; i < queries.length; i++) {
+            var token = Token.fromLine(queries[i], i);
             tokens.add(token);
         }
         return tokens;
     }
 
-    public void generateCode() throws IOException {
+    public void generateCode() throws IOException, ParseException {
         ArrayList<Token> tokens = tokenize();
 
         ArrayList<ArrayList<Token>> queryTokens = partitionIntoQueryTokens(tokens);
         ArrayList<Query> queries = new ArrayList<>();
 
-        for (var queryToken: queryTokens) {
+        for (var queryToken : queryTokens) {
             queries.add(Query.fromTokens(queryToken));
         }
 
@@ -42,8 +44,7 @@ public class QueryBuilder {
     private static ArrayList<ArrayList<Token>> partitionIntoQueryTokens(ArrayList<Token> tokens) {
         ArrayList<ArrayList<Token>> queries = new ArrayList<>();
         ArrayList<Token> currentQuery = new ArrayList<>();
-        // append a new line in case the file doesn't end with a blank line
-        tokens.add(new Token("", Token.Type.EMPTY_LINE));
+        tokens.add(new Token("", Token.Type.EMPTY_LINE, tokens.size()));
         for (var token : tokens) {
             if (token.getType().equals(Token.Type.EMPTY_LINE)) {
                 // handling the case when there are more than line empty line between queries.

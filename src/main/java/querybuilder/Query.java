@@ -1,5 +1,6 @@
 package querybuilder;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -19,11 +20,11 @@ public class Query {
         this.metadata = metadata;
     }
 
-    public Query(ArrayList<Token> queryTokens, ArrayList<Token> metadataTokens) {
+    public Query(ArrayList<Token> queryTokens, ArrayList<Token> metadataTokens) throws ParseException {
         this(queryStringFromTokens(queryTokens), new Metadata(metadataTokens));
     }
 
-    public static Query fromTokens(ArrayList<Token> tokens) {
+    public static Query fromTokens(ArrayList<Token> tokens) throws ParseException {
         ArrayList<Token> metadataTokens = new ArrayList<>();
         ArrayList<Token> queryTokens = new ArrayList<>();
         for (Token token : tokens) {
