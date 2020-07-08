@@ -20,21 +20,34 @@ public class Metadata {
                     name = comment.getValue();
                     break;
                 case QUERY_TYPE:
-                    queryType = QueryType.fromString(comment.getValue());
+                    try {
+                        queryType = QueryType.fromString(comment.getValue());
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("invalid token at line: " +
+                                comment.getLineNumber() + " " + e.getMessage());
+                    }
                     break;
                 case RESULT_TYPE:
-                    resultType = ResultType.fromString(comment.getValue());
+                    try {
+                        resultType = ResultType.fromString(comment.getValue());
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("invalid token at line: " +
+                                comment.getLineNumber() + " " + e.getMessage());
+                    }
                 default:
             }
         }
         if (name == null) {
-            throw new IllegalArgumentException("there should be a comment stating the name of the query");
+            throw new IllegalArgumentException("there should be a comment stating the name of the query at line: "
+                    + comments.get(0).getLineNumber());
         }
         if (queryType == null) {
-            throw new IllegalArgumentException("there should be a comment stating the type of the query");
+            throw new IllegalArgumentException("there should be a comment stating the type of the query at line: "
+                    + comments.get(0).getLineNumber());
         }
         if (resultType == null) {
-            throw new IllegalArgumentException("there should be a comment stating the result type of the query");
+            throw new IllegalArgumentException("there should be a comment stating the result type of the query at line: "
+                    + comments.get(0).getLineNumber());
         }
     }
 
