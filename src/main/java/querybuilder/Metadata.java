@@ -81,6 +81,18 @@ public class Metadata {
         }
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public QueryType getQueryType() {
+        return queryType;
+    }
+
+    public ResultType getResultType() {
+        return resultType;
+    }
+
     @Override
     public String toString() {
         return "Metadata{" +

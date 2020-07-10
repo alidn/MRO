@@ -1,12 +1,16 @@
 package querybuilder;
 
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
+
+import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class QueryBuilder {
     private final String inputPath;
@@ -38,7 +42,14 @@ public class QueryBuilder {
             queries.add(Query.fromTokens(queryToken));
         }
 
-        queries.forEach(System.out::println);
+        queries.forEach(query -> {
+//            System.out.println(query);
+            System.out.println(methodFromQuery(query));
+        });
+    }
+
+    private static String methodFromQuery(Query query) {
+        return CodeGenerator.methodFromQuery(query);
     }
 
     private static ArrayList<ArrayList<Token>> partitionIntoQueryTokens(ArrayList<Token> tokens) {
