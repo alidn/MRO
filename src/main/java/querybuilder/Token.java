@@ -10,7 +10,8 @@ public class Token {
         EMPTY_LINE,
         NAME,
         QUERY_TYPE,
-        RESULT_TYPE
+        RESULT_TYPE,
+        RETURN
     }
 
     public Token(String value, Type type, int lineNumber) {
@@ -28,6 +29,8 @@ public class Token {
             return new Token(getCommentValue(line), Type.QUERY_TYPE, lineNumber);
         } else if (line.matches("-- @result.* .*")) {
             return new Token(getCommentValue(line), Type.RESULT_TYPE, lineNumber);
+        } else if (line.matches("-- @return.* .*")) {
+            return new Token(getCommentValue(line), Type.RETURN, lineNumber);
         } else {
             return new Token(line, Type.SQL, lineNumber);
         }
@@ -46,7 +49,9 @@ public class Token {
         return type;
     }
 
-    public int getLineNumber() { return lineNumber + 1; }
+    public int getLineNumber() {
+        return lineNumber + 1;
+    }
 
     @Override
     public String toString() {

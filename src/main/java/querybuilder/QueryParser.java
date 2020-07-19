@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class QueryBuilder {
+public class QueryParser {
     private final String inputPath;
     private final String outputPath;
 
-    public QueryBuilder(String inputPath, String outputPath) {
+    public QueryParser(String inputPath, String outputPath) {
         this.inputPath = inputPath;
         this.outputPath = outputPath;
     }
@@ -32,7 +32,7 @@ public class QueryBuilder {
         return tokens;
     }
 
-    public void generateCode() throws IOException, ParseException {
+    public String parseInput() throws IOException, ParseException {
         ArrayList<Token> tokens = tokenize();
 
         ArrayList<ArrayList<Token>> queryTokens = partitionIntoQueryTokens(tokens);
@@ -43,9 +43,9 @@ public class QueryBuilder {
         }
 
         queries.forEach(query -> {
-//            System.out.println(query);
             System.out.println(methodFromQuery(query));
         });
+        return "";
     }
 
     private static String methodFromQuery(Query query) {

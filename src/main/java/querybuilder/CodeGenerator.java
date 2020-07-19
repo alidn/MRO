@@ -24,7 +24,27 @@ public class CodeGenerator {
     }
 
     private static String methodFromQueryForObject(Query query) {
-        return null;
+        TypeVariableName typeVariableName = TypeVariableName.get("T");
+
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(query.getMetadata().getName())
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement(getParamsListAsStr(query.getParams()))
+                .addTypeVariable(typeVariableName)
+                .returns(TypeVariableName.get("Iterable<T>"))
+                .addParameters(getParamSpecs(query.getParams()))
+                .addParameter(TypeVariableName.get("RowMapper<T>"),
+                        "rowMapper")
+                .addStatement("return this.jdbcTemplate.query($S, params, rowMapper)",
+                        query.getQuery());
+
+        methodBuilder.beginControlFlow("try")
+                .addStatement("$T o = this.jdbcTemplate.queryForObject($S, params, rowMapper)",
+                        typeVariableName, query.getQuery())
+                .nextControlFlow("catch ($T e)", Exception.class)
+                .addStatement("return null")
+                .endControlFlow();
+
+        return methodBuilder.build().toString();
     }
 
     public static String methodFromSimpleQuery(Query query) {
