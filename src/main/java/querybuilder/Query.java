@@ -52,7 +52,7 @@ public class Query {
         ArrayList<Token> queryTokens = new ArrayList<>();
         for (Token token : tokens) {
             switch (token.getType()) {
-                case NAME, RESULT_TYPE, QUERY_TYPE -> metadataTokens.add(token);
+                case NAME, RESULT_TYPE, QUERY_TYPE, RETURN -> metadataTokens.add(token);
                 case SQL -> queryTokens.add(token);
             }
         }
@@ -87,7 +87,18 @@ public class Query {
         for (String word : words) {
             if (word.startsWith(":")) {
                 String param = word.substring(1);
-                if (param.endsWith(")") || param.endsWith(",")
+                if (param.endsWith(");")) {
+                    param = param.substring(0, param.length() - 2);
+                } else if (param.endsWith(")") || param.endsWith(",")
+                        || param.endsWith(";")) {
+                    param = param.substring(0, param.length() - 1);
+                }
+                parameters.add(new Param(param, parameters.size()));
+            } else if (word.startsWith("(:")) {
+                String param = word.substring(2);
+                if (param.endsWith(");")) {
+                    param = param.substring(0, param.length() - 2);
+                } else if (param.endsWith(")") || param.endsWith(",")
                         || param.endsWith(";")) {
                     param = param.substring(0, param.length() - 1);
                 }

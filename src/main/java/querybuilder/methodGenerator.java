@@ -12,21 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class QueryParser {
+public class methodGenerator {
     private final String inputPath;
     private final String outputPath;
 
-    public QueryParser(String inputPath, String outputPath) {
+    public methodGenerator(String inputPath, String outputPath) {
         this.inputPath = inputPath;
         this.outputPath = outputPath;
     }
 
     private ArrayList<Token> tokenize() throws IOException {
         String content = readInput();
-        String[] queries = content.split("\n");
+        String[] queryLines = content.split("\n");
         ArrayList<Token> tokens = new ArrayList<>();
-        for (int i = 0; i < queries.length; i++) {
-            var token = Token.fromLine(queries[i], i);
+        for (int i = 0; i < queryLines.length; i++) {
+            var token = Token.fromLine(queryLines[i], i);
             tokens.add(token);
         }
         return tokens;

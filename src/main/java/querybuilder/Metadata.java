@@ -8,11 +8,13 @@ public class Metadata {
     private String name;
     private QueryType queryType;
     private ResultType resultType;
+    private String returnType;
 
-    public Metadata(String name, QueryType queryType, ResultType resultType) {
+    public Metadata(String name, QueryType queryType, ResultType resultType, String returnType) {
         this.name = name;
         this.queryType = queryType;
         this.resultType = resultType;
+        this.returnType = returnType;
     }
 
     public Metadata(ArrayList<Token> comments) throws ParseException {
@@ -34,6 +36,8 @@ public class Metadata {
                     } catch (IllegalArgumentException e) {
                         throw new ParseException(e.getMessage(), comment.getLineNumber());
                     }
+                case RETURN:
+                    returnType = comment.getValue();
                 default:
             }
         }
@@ -91,6 +95,10 @@ public class Metadata {
 
     public ResultType getResultType() {
         return resultType;
+    }
+
+    public String getReturnType() {
+        return returnType;
     }
 
     @Override

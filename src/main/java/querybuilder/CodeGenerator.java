@@ -16,30 +16,59 @@ public class CodeGenerator {
         if (query.getMetadata().getQueryType().equals(Metadata.QueryType.QUERY_TYPE)) {
             if (query.getMetadata().getResultType().equals(Metadata.ResultType.MANY)) {
                 return methodFromSimpleQuery(query);
-            } else {
+            } else if (query.getMetadata().getResultType().equals(Metadata.ResultType.ONE)) {
                 return methodFromQueryForObject(query);
+            }
+        } else if (query.getMetadata().getQueryType().equals(Metadata.QueryType.RETURNING_EXECUTE)) {
+            if (query.getMetadata().getResultType().equals(Metadata.ResultType.MANY)) {
+                return executeReturningMany(query);
+            } else if (query.getMetadata().getResultType().equals(Metadata.ResultType.ONE)) {
+                return methodFromQueryForObject(query);
+            } else if (query.getMetadata().getResultType().equals(Metadata.ResultType.AFFECTED)) {
+                return methodFromQueryReturningAffected(query);
             }
         }
         return null;
     }
 
-    private static String methodFromQueryForObject(Query query) {
-        TypeVariableName typeVariableName = TypeVariableName.get("T");
+    private static String methodFromQueryReturningAffected(Query query) {
+        String returnType = query.getMetadata().getReturnType();
 
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(query.getMetadata().getName())
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement(getParamsListAsStr(query.getParams()))
-                .addTypeVariable(typeVariableName)
-                .returns(TypeVariableName.get("Iterable<T>"))
+                .returns(TypeVariableName.get(returnType))
+                .addParameters(getParamSpecs(query.getParams()));
+
+        methodBuilder.addStatement("int affectedRows = this.jdbcTemplate.update($S, params)",
+                query.getQuery())
+                .addStatement("return affectedRows");
+
+        return methodBuilder.build().toString();
+    }
+
+    private static String executeReturningOne(Query query) {
+        return null;
+    }
+
+    private static String executeReturningMany(Query query) {
+        return null;
+    }
+
+    private static String methodFromQueryForObject(Query query) {
+        String returnType = query.getMetadata().getReturnType();
+
+        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(query.getMetadata().getName())
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement(getParamsListAsStr(query.getParams()))
+                .returns(TypeVariableName.get(returnType))
                 .addParameters(getParamSpecs(query.getParams()))
-                .addParameter(TypeVariableName.get("RowMapper<T>"),
-                        "rowMapper")
-                .addStatement("return this.jdbcTemplate.query($S, params, rowMapper)",
-                        query.getQuery());
+                .addParameter(TypeVariableName.get("RowMapper<" + returnType + ">"),
+                        "rowMapper");
 
         methodBuilder.beginControlFlow("try")
-                .addStatement("$T o = this.jdbcTemplate.queryForObject($S, params, rowMapper)",
-                        typeVariableName, query.getQuery())
+                .addStatement("return this.jdbcTemplate.queryForObject($S, params, rowMapper)",
+                        query.getQuery())
                 .nextControlFlow("catch ($T e)", Exception.class)
                 .addStatement("return null")
                 .endControlFlow();
