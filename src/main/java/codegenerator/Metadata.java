@@ -1,6 +1,5 @@
-package querybuilder;
+package codegenerator;
 
-import java.rmi.activation.ActivationInstantiator;
 import java.text.ParseException;
 import java.util.ArrayList;
 
@@ -51,6 +50,10 @@ public class Metadata {
         }
         if (resultType == null) {
             throw new ParseException("there should be a comment stating the result type of the query",
+                    comments.get(0).getLineNumber());
+        }
+        if (returnType == null) {
+            throw new ParseException("there should be a comment stating the return type of the query",
                     comments.get(0).getLineNumber());
         }
     }
