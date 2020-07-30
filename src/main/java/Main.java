@@ -1,15 +1,14 @@
-import querybuilder.methodGenerator;
+import cli.CliApp;
+import codegenerator.Parser;
+import picocli.CommandLine;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.ParseException;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        methodGenerator methodGenerator = new methodGenerator("src/main/queries.sql", "");
-        try {
-            methodGenerator.parseInput();
-        } catch (ParseException e) {
-            System.out.println(e.getMessage() + " at line " + e.getErrorOffset());
-        }
+    public static void main(String[] args) {
+        int exitCode = new CommandLine(new CliApp()).execute(args);
+        System.exit(exitCode);
     }
 }
