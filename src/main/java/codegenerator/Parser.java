@@ -1,7 +1,8 @@
-package querybuilder;
+package codegenerator;
 
+import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
@@ -12,13 +13,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class methodGenerator {
-    private final String inputPath;
-    private final String outputPath;
+public class Parser {
+    private final Path inputPath;
+    private final String packageName;
+    private final String className;
 
-    public methodGenerator(String inputPath, String outputPath) {
+    public Parser(Path inputPath, String packageName, String className) {
         this.inputPath = inputPath;
-        this.outputPath = outputPath;
+        this.packageName = packageName;
+        this.className = className;
     }
 
     private ArrayList<Token> tokenize() throws IOException {
@@ -32,7 +35,7 @@ public class methodGenerator {
         return tokens;
     }
 
-    public String parseInput() throws IOException, ParseException {
+    public void generate() throws IOException, ParseException {
         ArrayList<Token> tokens = tokenize();
 
         ArrayList<ArrayList<Token>> queryTokens = partitionIntoQueryTokens(tokens);
@@ -42,13 +45,25 @@ public class methodGenerator {
             queries.add(Query.fromTokens(queryToken));
         }
 
-        queries.forEach(query -> {
-            System.out.println(methodFromQuery(query));
-        });
-        return "";
+        TypeSpec typeSpec = getClassBuilder(queries).build();
+
+        JavaFile javaFile = JavaFile.builder(packageName, typeSpec)
+                .build();
+
+        Path path = Path.of("src/main/java");
+        javaFile.writeToPath(path);
     }
 
-    private static String methodFromQuery(Query query) {
+    private TypeSpec.Builder getClassBuilder(List<Query> queries) {
+        TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(this.className)
+                .addModifiers(Modifier.PUBLIC);
+        var methods = queries.stream().map(Parser::methodFromQuery)
+                .collect(Collectors.toList());
+        typeSpecBuilder.addMethods(methods);
+        return typeSpecBuilder;
+    }
+
+    private static MethodSpec methodFromQuery(Query query) {
         return CodeGenerator.methodFromQuery(query);
     }
 
@@ -70,8 +85,7 @@ public class methodGenerator {
         return queries;
     }
 
-    private String readInput() throws IOException {
-        Path path = Path.of(inputPath);
-        return Files.readString(path);
+    private String readInput() throws IOException { ;
+        return Files.readString(inputPath);
     }
 }

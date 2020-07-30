@@ -1,18 +1,17 @@
-package querybuilder;
+package codegenerator;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeVariableName;
 
 import javax.lang.model.element.Modifier;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class CodeGenerator {
     private CodeGenerator() {
     }
 
-    public static String methodFromQuery(Query query) {
+    public static MethodSpec methodFromQuery(Query query) {
         if (query.getMetadata().getQueryType().equals(Metadata.QueryType.QUERY_TYPE)) {
             if (query.getMetadata().getResultType().equals(Metadata.ResultType.MANY)) {
                 return methodFromSimpleQuery(query);
@@ -31,7 +30,7 @@ public class CodeGenerator {
         return null;
     }
 
-    private static String methodFromQueryReturningAffected(Query query) {
+    private static MethodSpec methodFromQueryReturningAffected(Query query) {
         String returnType = query.getMetadata().getReturnType();
 
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(query.getMetadata().getName())
@@ -44,18 +43,18 @@ public class CodeGenerator {
                 query.getQuery())
                 .addStatement("return affectedRows");
 
-        return methodBuilder.build().toString();
+        return methodBuilder.build();
     }
 
     private static String executeReturningOne(Query query) {
         return null;
     }
 
-    private static String executeReturningMany(Query query) {
+    private static MethodSpec executeReturningMany(Query query) {
         return null;
     }
 
-    private static String methodFromQueryForObject(Query query) {
+    private static MethodSpec methodFromQueryForObject(Query query) {
         String returnType = query.getMetadata().getReturnType();
 
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(query.getMetadata().getName())
@@ -73,10 +72,10 @@ public class CodeGenerator {
                 .addStatement("return null")
                 .endControlFlow();
 
-        return methodBuilder.build().toString();
+        return methodBuilder.build();
     }
 
-    public static String methodFromSimpleQuery(Query query) {
+    public static MethodSpec methodFromSimpleQuery(Query query) {
         TypeVariableName typeVariableName = TypeVariableName.get("T");
 
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(query.getMetadata().getName())
@@ -90,7 +89,7 @@ public class CodeGenerator {
                 .addStatement("return this.jdbcTemplate.query($S, params, rowMapper)",
                         query.getQuery());
 
-        return methodBuilder.build().toString();
+        return methodBuilder.build();
     }
 
     private static String getParamsListAsStr(ArrayList<Query.Param> params) {

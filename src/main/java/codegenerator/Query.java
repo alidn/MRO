@@ -1,8 +1,7 @@
-package querybuilder;
+package codegenerator;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Query {
     private final Metadata metadata;

@@ -1,4 +1,4 @@
-package querybuilder;
+package codegenerator;
 
 public class Token {
     private final String value;
