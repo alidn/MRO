@@ -21,7 +21,9 @@ public class Parser {
     public Parser(Path inputPath, String packageName, String className) {
         this.inputPath = inputPath;
         this.packageName = packageName;
-        this.className = className;
+
+        // the first letter should be capitalized
+        this.className = className.substring(0, 1).toUpperCase() + className.substring(1);
     }
 
     private ArrayList<Token> tokenize() throws IOException {
