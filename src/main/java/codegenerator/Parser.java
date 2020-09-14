@@ -5,6 +5,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,12 +16,12 @@ import java.util.stream.Collectors;
 
 public class Parser {
     private final Path inputPath;
-    private final String packageName;
+    private final String absolutePackagePath;
     private final String className;
 
     public Parser(Path inputPath, String packageName, String className) {
         this.inputPath = inputPath;
-        this.packageName = packageName;
+        this.absolutePackagePath = packageName;
 
         // the first letter should be capitalized
         this.className = className.substring(0, 1).toUpperCase() + className.substring(1);
@@ -44,22 +45,26 @@ public class Parser {
         ArrayList<Query> queries = new ArrayList<>();
 
         for (var queryToken : queryTokens) {
-            queries.add(Query.fromTokens(queryToken));
+            Query query = Query.fromTokens(queryToken);
+            queries.add(query);
         }
 
         TypeSpec typeSpec = getClassBuilder(queries).build();
 
+        String packageName = getPackageNameFromPackagePath(absolutePackagePath);
         JavaFile javaFile = JavaFile.builder(packageName, typeSpec)
                 .build();
 
-        Path path = Path.of("src/main/java");
+        Path path = Path.of(absolutePackagePath);
         javaFile.writeToPath(path);
     }
 
     private TypeSpec.Builder getClassBuilder(List<Query> queries) {
         TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(this.className)
                 .addModifiers(Modifier.PUBLIC);
-        var methods = queries.stream().map(Parser::methodFromQuery)
+        var methods = queries
+                .stream()
+                .map(Parser::methodFromQuery)
                 .collect(Collectors.toList());
         typeSpecBuilder.addMethods(methods);
         return typeSpecBuilder;
@@ -87,7 +92,12 @@ public class Parser {
         return queries;
     }
 
-    private String readInput() throws IOException { ;
+    private String readInput() throws IOException {
         return Files.readString(inputPath);
+    }
+
+    private static String getPackageNameFromPackagePath(String packagePath) {
+        int indexOfLastSLash = packagePath.lastIndexOf(File.separator) + 1;
+        return packagePath.substring(indexOfLastSLash);
     }
 }
